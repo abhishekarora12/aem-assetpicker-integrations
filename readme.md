@@ -32,9 +32,8 @@ Version 1.0 supports - embedding image and video assets and selecting asset rend
 
 ## Screenshots
 
-<img width="767" alt="aemassetpicker screenshot" src="https://git.corp.adobe.com/storage/user/19793/files/1407ed7b-8968-48e6-b0c2-16d921ba1775">
-
-<img width="1263" alt="aemassetpicker wordpress plugin screenshot" src="https://git.corp.adobe.com/storage/user/19793/files/e93c9dce-72e1-4037-a549-01ba212ace17">
+<img width="767" alt="aemassetpicker_screenshot1" src="https://user-images.githubusercontent.com/12087783/199488360-6ff9c4f0-cb2c-4f81-8b3f-ac27ab846981.png">
+<img width="863" alt="aemassetpicker_screenshot2" src="https://user-images.githubusercontent.com/12087783/199488368-af3dd44a-70ac-4408-ab84-50413434bf44.png">
 
 
 ## Troubleshooting
@@ -45,7 +44,7 @@ Version 1.0 supports - embedding image and video assets and selecting asset rend
 
 - Add your aem instance path in Allowed Origins 
 
-<img width="1749" alt="aemassetpicker aem cors solution" src="https://git.corp.adobe.com/storage/user/19793/files/c4253e26-862c-4e62-86b7-3b9a2e3a1c22">
+<img width="1749" alt="aemassetpicker_aem_cors_solution" src="https://user-images.githubusercontent.com/12087783/199488502-7b77a645-5291-4e5b-b875-a4af3440cff1.png">
 
 
 ## Changelog
