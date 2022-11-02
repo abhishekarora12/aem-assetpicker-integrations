@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "create-block/aemassetpicker",
+  "version": "1.0",
+  "title": "AEM Assetpicker",
+  "category": "media",
+  "icon": "format-image",
+  "description": "Embed an image or video asset from AEM Digital Assets Manager",
+  "attributes": {
+    "authorInstanceUrl": {
+      "type": "string",
+      "default": "http://localhost:4502"
+    },
+    "publishInstanceUrl": {
+      "type": "string",
+      "default": "http://localhost:4502"
+    },
+    "assetType": {
+      "type": "string"
+    },
+    "assetPath": {
+      "type": "string"
+    },
+    "assetTitle": {
+      "type": "string"
+    },
+    "renditionsList": {
+      "type": "array"
+    },
+    "selectedRendition": {
+      "type": "string"
+    }
+  },
+  "example": {
+    "attributes": {
+      "assetType": "image",
+      "assetPath": "/content/dam/we-retail/en/activities/hiking/hiking_4.jpg",
+      "assetTitle": "Preview Image",
+      "selectedRendition": "cq5dam.thumbnail.319.319.png"
+    }
+  },
+  "textdomain": "aemassetpicker",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
