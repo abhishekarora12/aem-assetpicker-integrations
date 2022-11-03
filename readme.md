@@ -12,6 +12,7 @@
 Embed an image or video asset from AEM Digital Assets Manager in your wordpress instance
 
 Version 1.0.0 supports - embedding image and video assets and selecting asset renditions
+
 Version 1.1.0 supports - everything from v1.0.0 and global settings page
 
 ## Installation
