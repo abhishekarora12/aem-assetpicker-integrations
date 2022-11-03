@@ -41,6 +41,7 @@ import './editor.scss';
  */
 export default function Edit({ attributes, setAttributes }) {
 	/* Constants */
+	const GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
 	const assetpicker_path = "/aem/assetpicker.html";
 	const asset_rendition_path = "/_jcr_content/renditions/";
 	const assetpicker_url = attributes.authorInstanceUrl + assetpicker_path;
@@ -53,6 +54,18 @@ export default function Edit({ attributes, setAttributes }) {
 	const replaceIcon = "controls-repeat"; // "image-rotate"
 	let popup;
 
+	/**
+	 * Set attributes to global settings
+	 */
+	if (GLOBAL_ASSETPICKER_OPTIONS) {
+		if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
+			setAttributes({ authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0 })
+		}
+		if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
+			setAttributes({ publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1 })
+		}
+	}
+	
 	/**
 	 * This function is called on pick assets button click
 	 * @param {*} event 
