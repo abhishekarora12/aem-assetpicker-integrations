@@ -263,9 +263,12 @@ function Edit(_ref) {
     return renditionsArr;
   }
 
-  function getImageRenditionURL(url, rendition) {
+  function generateAssetRenditionURL(url, renditionType, rendition) {
     //console.log("url", url); // uncomment for debugging
     //console.log("rendition", rendition); // uncomment for debugging
+    // Dynamic Renditions
+    if (renditionType === "dynamic") return rendition; // Static Renditions
+
     if (!rendition) return url;
     return url + asset_rendition_path + rendition;
   }
@@ -278,16 +281,14 @@ function Edit(_ref) {
    */
 
 
-  function renderElement(instancePath, assetType, assetPath, assetTitle, selectedRendition) {
-    if (assetType == "image") {
-      let url = instancePath + assetPath;
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-        src: getImageRenditionURL(url, selectedRendition),
-        alt: assetTitle
-      });
-    } else if (assetType == "video") {
-      let url = instancePath + assetPath;
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
+  function renderElement(fullAssetUrl, instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+    if (assetType !== "image" && assetType !== "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset"); // Generate URL
+
+    let url;
+    if (fullAssetUrl) url = fullAssetUrl;else url = generateAssetRenditionURL(instancePath + assetPath, renditionType, selectedRendition); // Render
+
+    if (assetType === "video") {
+      if (url) return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
         controls: "",
         height: "240",
         width: "320"
@@ -295,7 +296,10 @@ function Edit(_ref) {
         src: url
       }));
     } else {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset");
+      if (url) return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+        src: url,
+        alt: assetTitle
+      });
     }
   }
   /**
@@ -333,11 +337,32 @@ function Edit(_ref) {
       publishInstanceUrl: url
     })
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: "Asset Type",
+    value: attributes.assetType,
+    help: "aem asset type",
+    onChange: type => setAttributes({
+      assetType: type
+    })
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "Asset Path",
     value: attributes.assetPath,
     help: "aem dam asset path",
     onChange: path => setAttributes({
       assetPath: path
+    })
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: "Full Asset URL",
+    value: attributes.fullAssetUrl,
+    help: "full asset url (ignores all other fields if filled)",
+    onChange: url => setAttributes({
+      fullAssetUrl: url
+    })
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: "Rendition Type",
+    value: attributes.renditionType,
+    help: "asset rendition type",
+    onChange: type => setAttributes({
+      renditionType: type
     })
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "Rendition Selected",
@@ -367,7 +392,7 @@ function Edit(_ref) {
     className: "components-button block-editor-media-placeholder__button block-editor-media-placeholder__aemassetpicker-button is-primary"
   }, "AEM Catalog"))) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "fullWidth boxMargin"
-  }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.selectedRendition))));
+  }, renderElement(attributes.fullAssetUrl, attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
 }
 
 /***/ }),
@@ -468,16 +493,13 @@ function save(_ref) {
 
   /* Constants */
   const asset_rendition_path = "/_jcr_content/renditions/";
-  /**
-   * This function generates the full url with image rendition
-   * @param {*} url 
-   * @param {*} rendition 
-   * @returns 
-   */
 
-  function getImageRenditionURL(url, rendition) {
+  function generateAssetRenditionURL(url, renditionType, rendition) {
     //console.log("url", url); // uncomment for debugging
     //console.log("rendition", rendition); // uncomment for debugging
+    // Dynamic Renditions
+    if (renditionType === "dynamic") return rendition; // Static Renditions
+
     if (!rendition) return url;
     return url + asset_rendition_path + rendition;
   }
@@ -490,16 +512,14 @@ function save(_ref) {
    */
 
 
-  function renderElement(instancePath, assetType, assetPath, assetTitle, selectedRendition) {
-    if (assetType == "image") {
-      let url = instancePath + assetPath;
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-        src: getImageRenditionURL(url, selectedRendition),
-        alt: assetTitle
-      });
-    } else if (assetType == "video") {
-      let url = instancePath + assetPath;
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
+  function renderElement(fullAssetUrl, instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+    if (assetType !== "image" && assetType !== "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset"); // Generate URL
+
+    let url;
+    if (fullAssetUrl) url = fullAssetUrl;else url = generateAssetRenditionURL(instancePath + assetPath, renditionType, selectedRendition); // Render
+
+    if (assetType === "video") {
+      if (url) return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
         controls: "",
         height: "240",
         width: "320"
@@ -507,7 +527,10 @@ function save(_ref) {
         src: url
       }));
     } else {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset");
+      if (url) return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+        src: url,
+        alt: assetTitle
+      });
     }
   }
 
@@ -515,7 +538,7 @@ function save(_ref) {
     className: "aemassetpicker-block"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "fullWidth boxMargin"
-  }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.selectedRendition))));
+  }, renderElement(attributes.fullAssetUrl, attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
 }
 
 /***/ }),
@@ -600,7 +623,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.1.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"selectedRendition":{"type":"string"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.1.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"fullAssetUrl":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

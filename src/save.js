@@ -19,15 +19,15 @@ export default function save({ attributes, setAttributes }) {
 	/* Constants */
 	const asset_rendition_path = "/_jcr_content/renditions/";
 
-	/**
-	 * This function generates the full url with image rendition
-	 * @param {*} url 
-	 * @param {*} rendition 
-	 * @returns 
-	 */
-	function getImageRenditionURL(url, rendition) {
+	function generateAssetRenditionURL(url, renditionType, rendition) {
 		//console.log("url", url); // uncomment for debugging
 		//console.log("rendition", rendition); // uncomment for debugging
+
+		// Dynamic Renditions
+		if (renditionType === "dynamic")
+			return rendition;
+
+		// Static Renditions
 		if (!rendition)
 			return url;
 		return url + asset_rendition_path + rendition;
@@ -40,21 +40,29 @@ export default function save({ attributes, setAttributes }) {
 	 * @param {*} title 
 	 * @returns 
 	 */
-	function renderElement(instancePath, assetType, assetPath, assetTitle, selectedRendition) {
-		if (assetType == "image") {
-			let url = instancePath + assetPath;
-			return <img src={getImageRenditionURL(url, selectedRendition)} alt={assetTitle} />
-		}
-		else if (assetType == "video") {
-			let url = instancePath + assetPath;
-			return (
-				<video controls="" height="240" width="320">
-					<source src={url} />
-				</video>
-			)
+	 function renderElement(fullAssetUrl, instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+		if (assetType !== "image" && assetType !== "video")
+			return <p>Please select a supported asset</p>
+
+		// Generate URL
+		let url;
+		if (fullAssetUrl)
+			url = fullAssetUrl;
+		else
+			url = generateAssetRenditionURL((instancePath + assetPath), renditionType, selectedRendition)
+
+		// Render
+		if (assetType === "video") {
+			if (url)
+				return (
+					<video controls="" height="240" width="320">
+						<source src={url} />
+					</video>
+				)
 		}
 		else {
-			return <p>Please select a supported asset</p>
+			if (url)
+				return <img src={url} alt={assetTitle} />
 		}
 	}
 
@@ -62,7 +70,15 @@ export default function save({ attributes, setAttributes }) {
 		<div {...useBlockProps.save()}>
 			<div className="aemassetpicker-block">
 				<div className="fullWidth boxMargin">
-					{renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.selectedRendition)}
+					{renderElement(
+						attributes.fullAssetUrl,
+						attributes.authorInstanceUrl,
+						attributes.assetType,
+						attributes.assetPath,
+						attributes.assetTitle,
+						attributes.renditionType,
+						attributes.selectedRendition
+					)}
 				</div>
 			</div>
 		</div>

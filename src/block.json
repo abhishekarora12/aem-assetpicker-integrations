@@ -19,6 +19,9 @@
 		"assetType": {
 			"type": "string"
 		},
+		"fullAssetUrl": {
+			"type": "string"
+		},
 		"assetPath": {
 			"type": "string"
 		},
@@ -27,6 +30,11 @@
 		},
 		"renditionsList": {
 			"type": "array"
+		},
+		"renditionType": {
+			"type": "string",
+			"enum": [ "static", "dynamic" ],
+			"default": "static"
 		},
 		"selectedRendition" : {
 			"type": "string"
