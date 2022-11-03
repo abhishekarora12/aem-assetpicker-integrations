@@ -25,9 +25,10 @@ Version 1.0 supports - embedding image and video assets and selecting asset rend
 1. Clone the git repo
 2. Put the entire aemassetpicker folder in wordpress/wp-content/plugins
 3. Make sure you have the latest version of npm installed and running in terminal (npm -v)
-4. Open terminal(mac) or cmd(windows) and run - "npm start"
-5. Now you can start your development
-6. For production build run - "npm run build"
+4. Open terminal(mac) or cmd(windows)
+5. For development (incremental builds) run - "npm run start:custom" 
+6. Now you can start your development
+7. For producing a single build run - "npm run build:custom"
 
 
 ## Screenshots
