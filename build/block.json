@@ -19,9 +19,6 @@
     "assetType": {
       "type": "string"
     },
-    "fullAssetUrl": {
-      "type": "string"
-    },
     "assetPath": {
       "type": "string"
     },

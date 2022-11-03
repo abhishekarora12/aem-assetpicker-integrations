@@ -238,28 +238,22 @@ export default function Edit({ attributes, setAttributes }) {
 	 * @param {*} title 
 	 * @returns 
 	 */
-	function renderElement(fullAssetUrl, instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+	function renderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
 		if (assetType !== "image" && assetType !== "video")
 			return <p>Please select a supported asset</p>
 
 		// Generate URL
-		let url;
-		if (fullAssetUrl)
-			url = fullAssetUrl;
-		else
-			url = generateAssetRenditionURL((instancePath + assetPath), renditionType, selectedRendition)
+		let url = generateAssetRenditionURL((instancePath + assetPath), renditionType, selectedRendition)
 
 		// Render
-		if (assetType === "video") {
-			if (url)
+		if (url) {
+			if (assetType === "video")
 				return (
 					<video controls="" height="240" width="320">
 						<source src={url} />
 					</video>
 				)
-		}
-		else {
-			if (url)
+			else
 				return <img src={url} alt={assetTitle} />
 		}
 	}
@@ -301,11 +295,6 @@ export default function Edit({ attributes, setAttributes }) {
 							value={attributes.assetPath}
 							help='aem dam asset path'
 							onChange={(path) => setAttributes({ assetPath: path })} />
-						<TextControl
-							label="Full Asset URL"
-							value={attributes.fullAssetUrl}
-							help='full asset url (ignores all other fields if filled)'
-							onChange={(url) => setAttributes({ fullAssetUrl: url })} />
 						<TextControl
 							label="Rendition Type"
 							value={attributes.renditionType}
@@ -349,7 +338,6 @@ export default function Edit({ attributes, setAttributes }) {
 					:
 					(<div className="fullWidth boxMargin">
 						{renderElement(
-							attributes.fullAssetUrl,
 							attributes.authorInstanceUrl,
 							attributes.assetType,
 							attributes.assetPath,
