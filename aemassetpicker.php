@@ -143,13 +143,13 @@ add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'aemassetpicke
  */
 function create_block_aemassetpicker_block_init() {
 	//Enqueue Scripts
-	wp_enqueue_script( 'aemassetpicker_customjs', plugins_url( 'build/custom.js' , __FILE__ ) );
+	wp_enqueue_script( 'aemassetpicker_globalsettings', plugins_url( 'build/globalsettings.js' , __FILE__ ) );
 
 	// Get options from php
 	$aemassetpicker_options = get_option( 'aemassetpicker_option_name' ); // Array of All Options
 
 	// Send options to javascript
-	wp_localize_script( 'aemassetpicker_customjs', 'global_assetpicker_options', $aemassetpicker_options );
+	wp_localize_script( 'aemassetpicker_globalsettings', 'global_assetpicker_options', $aemassetpicker_options );
 
 	// Register Block
 	register_block_type( __DIR__ . '/build' );
