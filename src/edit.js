@@ -21,7 +21,7 @@ import { useBlockProps, BlockControls, InspectorControls } from '@wordpress/bloc
 /**
  * Wordpress components used in the block
  */
-import { Placeholder, TextControl, Toolbar, ToolbarGroup, ToolbarButton, ToolbarDropdownMenu, PanelBody } from '@wordpress/components';
+import { Placeholder, TextControl, ToolbarGroup, ToolbarButton, ToolbarDropdownMenu, PanelBody, PanelRow, RangeControl } from '@wordpress/components';
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -52,6 +52,8 @@ export default function Edit({ attributes, setAttributes }) {
 	const renditionsListIcon = "images-alt2"
 	const renditionIcon = "menu";
 	const replaceIcon = "controls-repeat"; // "image-rotate"
+	const maxAssetWidth = 1450;
+	const minAssetWidth = 10;
 	let popup;
 
 	/**
@@ -249,7 +251,7 @@ export default function Edit({ attributes, setAttributes }) {
 		if (url) {
 			if (assetType === "video")
 				return (
-					<video controls="" height="240" width="320">
+					<video controls="">
 						<source src={url} />
 					</video>
 				)
@@ -275,36 +277,49 @@ export default function Edit({ attributes, setAttributes }) {
 				{/*console.log("rendering block")*/}
 				<InspectorControls key="setting">
 					<PanelBody title="Settings" initialOpen={true}>
+						<RangeControl
+							label="Size"
+							value={attributes.assetWidth}
+							onChange={(value) => setAttributes({ assetWidth: value })}
+							min={minAssetWidth}
+							max={maxAssetWidth}
+						/>
 						<TextControl
 							label="AEM Author URL"
 							value={attributes.authorInstanceUrl}
 							help='your aem author instance url'
-							onChange={(url) => setAttributes({ authorInstanceUrl: url })} />
+							onChange={(url) => setAttributes({ authorInstanceUrl: url })}
+						/>
 						<TextControl
 							label="AEM Publish URL"
 							value={attributes.publishInstanceUrl}
 							help='your aem publish instance url'
-							onChange={(url) => setAttributes({ publishInstanceUrl: url })} />
+							onChange={(url) => setAttributes({ publishInstanceUrl: url })}
+						/>
 						<TextControl
 							label="Asset Type"
 							value={attributes.assetType}
 							help='aem asset type'
-							onChange={(type) => setAttributes({ assetType: type })} />
+							onChange={(type) => setAttributes({ assetType: type })}
+						/>
 						<TextControl
 							label="Asset Path"
 							value={attributes.assetPath}
 							help='aem dam asset path'
-							onChange={(path) => setAttributes({ assetPath: path })} />
+							onChange={(path) => setAttributes({ assetPath: path })}
+						/>
 						<TextControl
 							label="Rendition Type"
 							value={attributes.renditionType}
 							help='asset rendition type'
-							onChange={(type) => setAttributes({ renditionType: type })} />
+							onChange={(type) => setAttributes({ renditionType: type })}
+						/>
 						<TextControl
 							label="Rendition Selected"
 							value={attributes.selectedRendition}
 							help='selected asset rendition'
-							onChange={(rendition) => setAttributes({ selectedRendition: rendition })} />
+							onChange={(rendition) => setAttributes({ selectedRendition: rendition })}
+						/>
 					</PanelBody>
 				</InspectorControls>
 				<BlockControls>
@@ -336,7 +351,7 @@ export default function Edit({ attributes, setAttributes }) {
 						</div>
 					</Placeholder>)
 					:
-					(<div className="fullWidth boxMargin">
+					(<div className="fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
 						{renderElement(
 							attributes.authorInstanceUrl,
 							attributes.assetType,
@@ -348,6 +363,6 @@ export default function Edit({ attributes, setAttributes }) {
 					</div>)
 				}
 			</div>
-		</div>
+		</div >
 	);
 }

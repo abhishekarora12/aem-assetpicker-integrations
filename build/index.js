@@ -83,6 +83,8 @@ function Edit(_ref) {
   const renditionIcon = "menu";
   const replaceIcon = "controls-repeat"; // "image-rotate"
 
+  const maxAssetWidth = 1450;
+  const minAssetWidth = 10;
   let popup;
   /**
    * Set attributes to global settings
@@ -288,9 +290,7 @@ function Edit(_ref) {
 
     if (url) {
       if (assetType === "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
-        controls: "",
-        height: "240",
-        width: "320"
+        controls: ""
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("source", {
         src: url
       }));else return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
@@ -319,7 +319,15 @@ function Edit(_ref) {
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
     title: "Settings",
     initialOpen: true
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: "Size",
+    value: attributes.assetWidth,
+    onChange: value => setAttributes({
+      assetWidth: value
+    }),
+    min: minAssetWidth,
+    max: maxAssetWidth
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "AEM Author URL",
     value: attributes.authorInstanceUrl,
     help: "your aem author instance url",
@@ -381,7 +389,11 @@ function Edit(_ref) {
     onClick: insertAEMAssets,
     className: "components-button block-editor-media-placeholder__button block-editor-media-placeholder__aemassetpicker-button is-primary"
   }, "AEM Catalog"))) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "fullWidth boxMargin"
+    className: "fullWidth boxMargin",
+    style: {
+      width: attributes.assetWidth + 'px',
+      height: 'auto'
+    }
   }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
 }
 
@@ -509,9 +521,7 @@ function save(_ref) {
 
     if (url) {
       if (assetType === "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
-        controls: "",
-        height: "240",
-        width: "320"
+        controls: ""
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("source", {
         src: url
       }));else return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
@@ -524,8 +534,12 @@ function save(_ref) {
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps.save(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "aemassetpicker-block"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "fullWidth boxMargin"
-  }, renderElement(attributes.fullAssetUrl, attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
+    className: "fullWidth boxMargin",
+    style: {
+      width: attributes.assetWidth + 'px',
+      height: 'auto'
+    }
+  }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
 }
 
 /***/ }),
@@ -610,7 +624,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.1.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.1.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

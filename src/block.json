@@ -35,6 +35,9 @@
 		},
 		"selectedRendition" : {
 			"type": "string"
+		},
+		"assetWidth" : {
+			"type": "integer"
 		}
 	},
 	"example": {

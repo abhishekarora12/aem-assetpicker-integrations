@@ -51,7 +51,7 @@ export default function save({ attributes, setAttributes }) {
 		if (url) {
 			if (assetType === "video")
 				return (
-					<video controls="" height="240" width="320">
+					<video controls="">
 						<source src={url} />
 					</video>
 				)
@@ -63,9 +63,8 @@ export default function save({ attributes, setAttributes }) {
 	return (
 		<div {...useBlockProps.save()}>
 			<div className="aemassetpicker-block">
-				<div className="fullWidth boxMargin">
+				<div className="fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
 					{renderElement(
-						attributes.fullAssetUrl,
 						attributes.authorInstanceUrl,
 						attributes.assetType,
 						attributes.assetPath,
