@@ -7,5 +7,17 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
+.aemassetpicker-block .fullWidth {
+  width: 100%;
+}
+
+.aemassetpicker-block .boxMargin {
+  margin-bottom: 20px;
+}
+
+.error_message {
+  font-size: 12px;
+  color: red;
+}
 
 /*# sourceMappingURL=style-index.css.map*/

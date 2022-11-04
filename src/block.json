@@ -8,11 +8,11 @@
 	"icon": "format-image",
 	"description": "Embed an image or video asset from AEM Digital Assets Manager",
 	"attributes": {
-		"authorInstanceUrl":{
+		"authorInstanceUrl": {
 			"type": "string",
 			"default": "http://localhost:4502"
 		},
-		"publishInstanceUrl":{
+		"publishInstanceUrl": {
 			"type": "string",
 			"default": "http://localhost:4502"
 		},
@@ -30,14 +30,24 @@
 		},
 		"renditionType": {
 			"type": "string",
-			"enum": [ "static", "dynamic" ],
+			"enum": [
+				"static",
+				"dynamic"
+			],
 			"default": "static"
 		},
-		"selectedRendition" : {
+		"selectedRendition": {
 			"type": "string"
 		},
-		"assetWidth" : {
+		"assetWidth": {
 			"type": "integer"
+		},
+		"isAssetPublished": {
+			"type": "boolean",
+			"default": true
+		},
+		"errorMsg": {
+			"type": "string"
 		}
 	},
 	"example": {

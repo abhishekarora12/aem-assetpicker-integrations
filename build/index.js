@@ -2,6 +2,46 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/CONSTANTS.js":
+/*!**************************!*\
+  !*** ./src/CONSTANTS.js ***!
+  \**************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GLOBAL_ASSETPICKER_OPTIONS": function() { return /* binding */ GLOBAL_ASSETPICKER_OPTIONS; },
+/* harmony export */   "allowed_extensions": function() { return /* binding */ allowed_extensions; },
+/* harmony export */   "asset_rendition_path": function() { return /* binding */ asset_rendition_path; },
+/* harmony export */   "assetpicker_path": function() { return /* binding */ assetpicker_path; },
+/* harmony export */   "errorMsgs": function() { return /* binding */ errorMsgs; },
+/* harmony export */   "maxAssetWidth": function() { return /* binding */ maxAssetWidth; },
+/* harmony export */   "minAssetWidth": function() { return /* binding */ minAssetWidth; },
+/* harmony export */   "renditionIcon": function() { return /* binding */ renditionIcon; },
+/* harmony export */   "renditionsListIcon": function() { return /* binding */ renditionsListIcon; },
+/* harmony export */   "replaceIcon": function() { return /* binding */ replaceIcon; }
+/* harmony export */ });
+/* Constants */
+const GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
+const assetpicker_path = "/aem/assetpicker.html";
+const asset_rendition_path = "/_jcr_content/renditions/";
+const allowed_extensions = {
+  image: ["jpg", "jpeg", "png", "tiff", "svg"],
+  video: ["mp4", "mkv"]
+};
+const renditionsListIcon = "images-alt2";
+const renditionIcon = "menu";
+const replaceIcon = "controls-repeat"; // "image-rotate"
+
+const maxAssetWidth = 1450;
+const minAssetWidth = 10;
+const errorMsgs = {
+  FetchRendition: "Failed to fetch renditions",
+  AssetNotPublished: "Asset is not available on publish instance"
+};
+
+/***/ }),
+
 /***/ "./src/edit.js":
 /*!*********************!*\
   !*** ./src/edit.js ***!
@@ -21,6 +61,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./editor.scss */ "./src/editor.scss");
+/* harmony import */ var _renderassets__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./renderassets */ "./src/renderassets.js");
+/* harmony import */ var _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./CONSTANTS */ "./src/CONSTANTS.js");
 
 
 /**
@@ -56,6 +98,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /**
+ * Internal dependencies
+ */
+
+
+
+/**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
@@ -69,37 +117,22 @@ function Edit(_ref) {
     attributes,
     setAttributes
   } = _ref;
-
-  /* Constants */
-  const GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
-  const assetpicker_path = "/aem/assetpicker.html";
-  const asset_rendition_path = "/_jcr_content/renditions/";
-  const assetpicker_url = attributes.authorInstanceUrl + assetpicker_path;
-  const allowed_extensions = {
-    image: ["jpg", "jpeg", "png", "tiff", "svg"],
-    video: ["mp4", "mkv"]
-  };
-  const renditionsListIcon = "images-alt2";
-  const renditionIcon = "menu";
-  const replaceIcon = "controls-repeat"; // "image-rotate"
-
-  const maxAssetWidth = 1450;
-  const minAssetWidth = 10;
+  const assetpicker_url = attributes.authorInstanceUrl + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.assetpicker_path;
   let popup;
   /**
    * Set attributes to global settings
    */
 
-  if (GLOBAL_ASSETPICKER_OPTIONS) {
-    if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
+  if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS) {
+    if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
       setAttributes({
-        authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
+        authorInstanceUrl: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
       });
     }
 
-    if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
+    if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
       setAttributes({
-        publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
+        publishInstanceUrl: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
       });
     }
   }
@@ -197,10 +230,10 @@ function Edit(_ref) {
   function getExtensionType(filename) {
     let ext = getExtension(filename); // find extension in allowed extensions
 
-    for (let key in allowed_extensions) {
+    for (let key in _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.allowed_extensions) {
       // skip loop if the property is from prototype
-      if (!allowed_extensions.hasOwnProperty(key)) continue;
-      let arr = allowed_extensions[key];
+      if (!_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.allowed_extensions.hasOwnProperty(key)) continue;
+      let arr = _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.allowed_extensions[key];
       if (arr.indexOf(ext) != -1) return key;
     }
 
@@ -212,13 +245,51 @@ function Edit(_ref) {
   function isEmpty(obj) {
     return Object.keys(obj).length === 0;
   }
+  /* Handle Fetch Errors */
+
+
+  function handleFetchErrors(response) {
+    console.log(response);
+    if (!response.ok) throw Error(response.statusText);
+    return response;
+  }
+  /**
+   * Send error if selected asset doesn't exist on publish
+   */
+
+
+  function checkAssetNotExistOnPublish(assetPublishUrl) {
+    let url = assetPublishUrl;
+    let requestOptions = {
+      method: 'GET'
+    };
+    fetch(url, requestOptions).then(function (response) {
+      if (!response.ok) throw Error(response.statusText);
+      return response;
+    }).catch(error => {
+      console.log(error);
+      setAttributes({
+        isAssetPublished: false
+      });
+    });
+  }
   /**
    * Fetches all the static renditions for the AEM Asset
    */
 
 
-  function fetchRenditionsList(assetUrl) {
-    let assetAPIUrl = getAEMAssetAPIPath(assetUrl);
+  function fetchRenditionsList(authorInstanceUrl, assetPath) {
+    // let assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+    // let reqHeaders = new Headers();
+    // let requestOptions = {
+    // 	method: 'GET',
+    // 	headers: reqHeaders,
+    // 	redirect: 'follow',
+    // 	credentials: "include"
+    // };
+    const assetRenditionsAPIPath = "/bin/AssetRendition";
+    const queryParam = "?assetPath=";
+    let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
     let reqHeaders = new Headers();
     let requestOptions = {
       method: 'GET',
@@ -226,16 +297,22 @@ function Edit(_ref) {
       redirect: 'follow',
       credentials: "include"
     };
-    fetch(assetAPIUrl, requestOptions).then(response => response.json()).then(function (result) {
-      //console.log(result); // uncomment for debugging
+    fetch(assetAPIUrl, requestOptions).then(handleFetchErrors).then(response => response.json()).then(function (result) {
+      console.log(result); // uncomment for debugging
+
       let renditionsList = fillAssetRenditions(result);
       setAttributes({
         renditionsList: renditionsList
       });
-    }).catch(error => console.log('renditions fetch error', error));
+    }).catch(error => {
+      console.log(error);
+      setAttributes({
+        errorMsg: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.errorMsgs.FetchRendition
+      });
+    });
   }
 
-  function getAEMAssetAPIPath(assetUrl) {
+  function getAEMAssetAPIRenditionsPath(assetUrl) {
     let assetAPIUrl = assetUrl.replace("/content/dam", "/api/assets");
     let renditionsAPIPath = assetAPIUrl + "/renditions.json";
     return renditionsAPIPath;
@@ -246,7 +323,7 @@ function Edit(_ref) {
     json['entities'].forEach(function (elem) {
       let obj = {
         title: '',
-        icon: renditionIcon
+        icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.renditionIcon
       };
 
       if (elem.class[0] === "assets/asset/renditions/rendition") {
@@ -264,41 +341,6 @@ function Edit(_ref) {
 
     return renditionsArr;
   }
-
-  function generateAssetRenditionURL(url, renditionType, rendition) {
-    //console.log("url", url); // uncomment for debugging
-    //console.log("rendition", rendition); // uncomment for debugging
-    // Dynamic Renditions
-    if (renditionType === "dynamic") return rendition; // Static Renditions
-
-    if (!rendition) return url;
-    return url + asset_rendition_path + rendition;
-  }
-  /**
-   * This function is used to render the image or video tags on the screen depending upon the asset type
-   * @param {*} type 
-   * @param {*} url 
-   * @param {*} title 
-   * @returns 
-   */
-
-
-  function renderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
-    if (assetType !== "image" && assetType !== "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset"); // Generate URL
-
-    let url = generateAssetRenditionURL(instancePath + assetPath, renditionType, selectedRendition); // Render
-
-    if (url) {
-      if (assetType === "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
-        controls: ""
-      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("source", {
-        src: url
-      }));else return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-        src: url,
-        alt: assetTitle
-      });
-    }
-  }
   /**
    * Called everytime assetPath attribute changes to fetch all the renditions
    */
@@ -306,9 +348,16 @@ function Edit(_ref) {
 
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     if (attributes.assetPath && attributes.authorInstanceUrl) {
-      let assetUrl = attributes.authorInstanceUrl + attributes.assetPath; //console.log('assetUrl attribute has changed - ', assetUrl); // uncomment for debugging
+      setAttributes({
+        isAssetPublished: true
+      });
+      /* Fetch Renditions */
 
-      fetchRenditionsList(assetUrl);
+      fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
+      /* Check if asset is published */
+
+      let assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
+      checkAssetNotExistOnPublish(assetPublishUrl);
     }
   }, [attributes.assetPath, attributes.authorInstanceUrl]); // <-- here put the parameter to listen
 
@@ -325,8 +374,8 @@ function Edit(_ref) {
     onChange: value => setAttributes({
       assetWidth: value
     }),
-    min: minAssetWidth,
-    max: maxAssetWidth
+    min: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.minAssetWidth,
+    max: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.maxAssetWidth
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "AEM Author URL",
     value: attributes.authorInstanceUrl,
@@ -371,11 +420,11 @@ function Edit(_ref) {
     })
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.BlockControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarGroup, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarButton, {
     label: "Replace",
-    icon: replaceIcon,
+    icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.replaceIcon,
     className: "aemassetpicker-replace-button",
     onClick: insertAEMAssets
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarGroup, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarDropdownMenu, {
-    icon: renditionsListIcon,
+    icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.renditionsListIcon,
     label: "Renditions",
     controls: attributes.renditionsList
   }))), !attributes.assetPath ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Placeholder, {
@@ -388,13 +437,17 @@ function Edit(_ref) {
     type: "button",
     onClick: insertAEMAssets,
     className: "components-button block-editor-media-placeholder__button block-editor-media-placeholder__aemassetpicker-button is-primary"
-  }, "AEM Catalog"))) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, "AEM Catalog"))) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "fullWidth boxMargin",
     style: {
       width: attributes.assetWidth + 'px',
       height: 'auto'
     }
-  }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
+  }, (0,_renderassets__WEBPACK_IMPORTED_MODULE_5__["default"])(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition)), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    class: "error_message"
+  }, attributes.errorMsg), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    class: "error_message published_error_message"
+  }, !attributes.isAssetPublished ? _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.errorMsgs.AssetNotPublished : ""))));
 }
 
 /***/ }),
@@ -454,6 +507,70 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/renderassets.js":
+/*!*****************************!*\
+  !*** ./src/renderassets.js ***!
+  \*****************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": function() { return /* binding */ RenderElement; }
+/* harmony export */ });
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _CONSTANTS__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CONSTANTS */ "./src/CONSTANTS.js");
+
+
+/**
+ * Internal dependencies
+ */
+
+/**
+ * Generates full asset url with rendition
+ * @param {*} url 
+ * @param {*} renditionType 
+ * @param {*} rendition 
+ * @returns 
+ */
+
+function generateAssetRenditionURL(url, renditionType, rendition) {
+  //console.log("url", url); // uncomment for debugging
+  //console.log("rendition", rendition); // uncomment for debugging
+  // Dynamic Renditions
+  if (renditionType === "dynamic") return rendition; // Static Renditions
+
+  if (!rendition) return url;
+  return url + _CONSTANTS__WEBPACK_IMPORTED_MODULE_1__.asset_rendition_path + rendition;
+}
+/**
+ * This function is used to render the image or video tags on the screen depending upon the asset type
+ * @param {*} type 
+ * @param {*} url 
+ * @param {*} title 
+ * @returns 
+ */
+
+
+function RenderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+  if (assetType !== "image" && assetType !== "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset"); // Generate URL
+
+  let url = generateAssetRenditionURL(instancePath + assetPath, renditionType, selectedRendition); // Render
+
+  if (url) {
+    if (assetType === "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
+      controls: ""
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("source", {
+      src: url
+    }));else return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+      src: url,
+      alt: assetTitle
+    });
+  }
+}
+
+/***/ }),
+
 /***/ "./src/save.js":
 /*!*********************!*\
   !*** ./src/save.js ***!
@@ -468,6 +585,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _renderassets__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./renderassets */ "./src/renderassets.js");
 
 
 /**
@@ -476,6 +594,11 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
+
+/**
+ * Internal dependencies
+ */
+
 
 /**
  * The save function defines the way in which the different attributes should
@@ -492,45 +615,6 @@ function save(_ref) {
     attributes,
     setAttributes
   } = _ref;
-
-  /* Constants */
-  const asset_rendition_path = "/_jcr_content/renditions/";
-
-  function generateAssetRenditionURL(url, renditionType, rendition) {
-    //console.log("url", url); // uncomment for debugging
-    //console.log("rendition", rendition); // uncomment for debugging
-    // Dynamic Renditions
-    if (renditionType === "dynamic") return rendition; // Static Renditions
-
-    if (!rendition) return url;
-    return url + asset_rendition_path + rendition;
-  }
-  /**
-   * This function is used to render the image or video tags on the screen depending upon the asset type
-   * @param {*} type 
-   * @param {*} url 
-   * @param {*} title 
-   * @returns 
-   */
-
-
-  function renderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
-    if (assetType !== "image" && assetType !== "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Please select a supported asset"); // Generate URL
-
-    let url = generateAssetRenditionURL(instancePath + assetPath, renditionType, selectedRendition); // Render
-
-    if (url) {
-      if (assetType === "video") return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("video", {
-        controls: ""
-      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("source", {
-        src: url
-      }));else return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-        src: url,
-        alt: assetTitle
-      });
-    }
-  }
-
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps.save(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "aemassetpicker-block"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -539,7 +623,7 @@ function save(_ref) {
       width: attributes.assetWidth + 'px',
       height: 'auto'
     }
-  }, renderElement(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
+  }, (0,_renderassets__WEBPACK_IMPORTED_MODULE_2__["default"])(attributes.authorInstanceUrl, attributes.assetType, attributes.assetPath, attributes.assetTitle, attributes.renditionType, attributes.selectedRendition))));
 }
 
 /***/ }),
@@ -624,7 +708,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.2.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"1.2.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

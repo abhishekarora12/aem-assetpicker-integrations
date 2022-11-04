@@ -32,6 +32,22 @@ import { Placeholder, TextControl, ToolbarGroup, ToolbarButton, ToolbarDropdownM
 import './editor.scss';
 
 /**
+ * Internal dependencies
+ */
+import RenderElement from './renderassets';
+import {
+	GLOBAL_ASSETPICKER_OPTIONS,
+	assetpicker_path,
+	allowed_extensions,
+	renditionsListIcon,
+	renditionIcon,
+	replaceIcon,
+	maxAssetWidth,
+	minAssetWidth,
+	errorMsgs
+} from './CONSTANTS';
+
+/**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
@@ -40,20 +56,7 @@ import './editor.scss';
  * @return {WPElement} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
-	/* Constants */
-	const GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
-	const assetpicker_path = "/aem/assetpicker.html";
-	const asset_rendition_path = "/_jcr_content/renditions/";
 	const assetpicker_url = attributes.authorInstanceUrl + assetpicker_path;
-	const allowed_extensions = {
-		image: ["jpg", "jpeg", "png", "tiff", "svg"],
-		video: ["mp4", "mkv"],
-	};
-	const renditionsListIcon = "images-alt2"
-	const renditionIcon = "menu";
-	const replaceIcon = "controls-repeat"; // "image-rotate"
-	const maxAssetWidth = 1450;
-	const minAssetWidth = 10;
 	let popup;
 
 	/**
@@ -166,11 +169,49 @@ export default function Edit({ attributes, setAttributes }) {
 		return Object.keys(obj).length === 0;
 	}
 
+	/* Handle Fetch Errors */
+	function handleFetchErrors(response) {
+		console.log(response);
+		if (!response.ok) throw Error(response.statusText);
+		return response;
+	}
+
+	/**
+	 * Send error if selected asset doesn't exist on publish
+	 */
+	function checkAssetNotExistOnPublish(assetPublishUrl) {
+		let url = assetPublishUrl;
+		let requestOptions = {
+			method: 'GET'
+		}
+
+		fetch(url, requestOptions)
+			.then(function (response) {
+				if (!response.ok) throw Error(response.statusText);
+				return response;
+			})
+			.catch(error => {
+				console.log(error);
+				setAttributes({ isAssetPublished: false });
+			});
+	}
+
 	/**
 	 * Fetches all the static renditions for the AEM Asset
 	 */
-	function fetchRenditionsList(assetUrl) {
-		let assetAPIUrl = getAEMAssetAPIPath(assetUrl);
+	function fetchRenditionsList(authorInstanceUrl, assetPath) {
+		// let assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+		// let reqHeaders = new Headers();
+		// let requestOptions = {
+		// 	method: 'GET',
+		// 	headers: reqHeaders,
+		// 	redirect: 'follow',
+		// 	credentials: "include"
+		// };
+
+		const assetRenditionsAPIPath = "/bin/AssetRendition";
+		const queryParam = "?assetPath="
+		let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
 		let reqHeaders = new Headers();
 		let requestOptions = {
 			method: 'GET',
@@ -180,16 +221,20 @@ export default function Edit({ attributes, setAttributes }) {
 		};
 
 		fetch(assetAPIUrl, requestOptions)
+			.then(handleFetchErrors)
 			.then(response => response.json())
 			.then(function (result) {
-				//console.log(result); // uncomment for debugging
+				console.log(result); // uncomment for debugging
 				let renditionsList = fillAssetRenditions(result);
 				setAttributes({ renditionsList: renditionsList })
 			})
-			.catch(error => console.log('renditions fetch error', error));
+			.catch(error => {
+				console.log(error);
+				setAttributes({ errorMsg: errorMsgs["FetchRendition"] });
+			});
 	}
 
-	function getAEMAssetAPIPath(assetUrl) {
+	function getAEMAssetAPIRenditionsPath(assetUrl) {
 		let assetAPIUrl = assetUrl.replace("/content/dam", "/api/assets");
 		let renditionsAPIPath = assetAPIUrl + "/renditions.json";
 		return renditionsAPIPath;
@@ -219,55 +264,19 @@ export default function Edit({ attributes, setAttributes }) {
 		return renditionsArr;
 	}
 
-	function generateAssetRenditionURL(url, renditionType, rendition) {
-		//console.log("url", url); // uncomment for debugging
-		//console.log("rendition", rendition); // uncomment for debugging
-
-		// Dynamic Renditions
-		if (renditionType === "dynamic")
-			return rendition;
-
-		// Static Renditions
-		if (!rendition)
-			return url;
-		return url + asset_rendition_path + rendition;
-	}
-
-	/**
-	 * This function is used to render the image or video tags on the screen depending upon the asset type
-	 * @param {*} type 
-	 * @param {*} url 
-	 * @param {*} title 
-	 * @returns 
-	 */
-	function renderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
-		if (assetType !== "image" && assetType !== "video")
-			return <p>Please select a supported asset</p>
-
-		// Generate URL
-		let url = generateAssetRenditionURL((instancePath + assetPath), renditionType, selectedRendition)
-
-		// Render
-		if (url) {
-			if (assetType === "video")
-				return (
-					<video controls="">
-						<source src={url} />
-					</video>
-				)
-			else
-				return <img src={url} alt={assetTitle} />
-		}
-	}
-
 	/**
 	 * Called everytime assetPath attribute changes to fetch all the renditions
 	 */
 	useEffect(() => {
 		if (attributes.assetPath && attributes.authorInstanceUrl) {
-			let assetUrl = attributes.authorInstanceUrl + attributes.assetPath;
-			//console.log('assetUrl attribute has changed - ', assetUrl); // uncomment for debugging
-			fetchRenditionsList(assetUrl);
+			setAttributes({ isAssetPublished: true });
+
+			/* Fetch Renditions */
+			fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
+
+			/* Check if asset is published */
+			let assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
+			checkAssetNotExistOnPublish(assetPublishUrl);
 		}
 	}, [attributes.assetPath, attributes.authorInstanceUrl]) // <-- here put the parameter to listen
 
@@ -351,18 +360,24 @@ export default function Edit({ attributes, setAttributes }) {
 						</div>
 					</Placeholder>)
 					:
-					(<div className="fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
-						{renderElement(
-							attributes.authorInstanceUrl,
-							attributes.assetType,
-							attributes.assetPath,
-							attributes.assetTitle,
-							attributes.renditionType,
-							attributes.selectedRendition
-						)}
-					</div>)
+					(
+						<div>
+							<div className="fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
+								{RenderElement(
+									attributes.authorInstanceUrl,
+									attributes.assetType,
+									attributes.assetPath,
+									attributes.assetTitle,
+									attributes.renditionType,
+									attributes.selectedRendition
+								)}
+							</div>
+							<p class="error_message">{attributes.errorMsg}</p>
+							<p class="error_message published_error_message">{!attributes.isAssetPublished ? errorMsgs["AssetNotPublished"] : ""}</p>
+						</div>
+					)
 				}
 			</div>
-		</div >
+		</div>
 	);
 }
