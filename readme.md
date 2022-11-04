@@ -3,17 +3,13 @@
 - Contributors:      Abhishek Arora
 - Tags:              block
 - Tested up to:      6.0
-- Stable tag:        1.1.0
+- Stable tag:        1.2.0
 - License:           GPL-2.0-or-later
 - License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
 ## Description
 
 Embed an image or video asset from AEM Digital Assets Manager in your wordpress instance
-
-Version 1.0.0 supports - embedding image and video assets and selecting asset renditions
-
-Version 1.1.0 supports - everything from v1.0.0 and global settings page
 
 ## Installation
 
@@ -52,4 +48,15 @@ Version 1.1.0 supports - everything from v1.0.0 and global settings page
 
 ## Changelog
 
-* Release - 1.1.0
+### Release - 1.2.0
+#### Added
+Asset resizing
+
+### Release - 1.1.0
+#### Added
+Global settings page
+
+### Release - 1.0.0
+#### Added
+Embed image and video assets
+Select asset renditions
