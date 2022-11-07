@@ -3,7 +3,7 @@
 - Contributors:      Abhishek Arora
 - Tags:              block
 - Tested up to:      6.0
-- Stable tag:        1.2.0
+- Stable tag:        2.0.0
 - License:           GPL-2.0-or-later
 - License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,10 @@ Embed an image or video asset from AEM Digital Assets Manager in your wordpress 
 
 
 ## Changelog
+
+### Release - 2.0.0
+#### Added
+Dynamic Media Renditions
 
 ### Release - 1.2.0
 #### Added
