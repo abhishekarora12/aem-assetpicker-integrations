@@ -149,7 +149,7 @@ function create_block_aemassetpicker_block_init() {
 	$aemassetpicker_options = get_option( 'aemassetpicker_option_name' ); // Array of All Options
 
 	// Send options to javascript
-	wp_localize_script( 'aemassetpicker_globalsettings', 'global_assetpicker_options', $aemassetpicker_options );
+	wp_localize_script( 'aemassetpicker_globalsettings', 'GLOBAL_ASSETPICKER_OPTIONS', $aemassetpicker_options );
 
 	// Register Block
 	register_block_type( __DIR__ . '/build' );

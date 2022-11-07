@@ -48,6 +48,10 @@
 		},
 		"errorMsg": {
 			"type": "string"
+		},
+		"setGlobalSettings": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"example": {

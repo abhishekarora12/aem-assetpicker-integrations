@@ -104,11 +104,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /**
- * Get global settings options
- */
-
-let GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
-/**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
@@ -125,10 +120,10 @@ function Edit(_ref) {
   const assetpicker_url = attributes.authorInstanceUrl + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.assetpicker_path;
   let popup;
   /**
-   * Set attributes to global settings
+   * Get global settings options
    */
 
-  if (GLOBAL_ASSETPICKER_OPTIONS) {
+  if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettings) {
     if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
       setAttributes({
         authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
@@ -142,7 +137,9 @@ function Edit(_ref) {
     } // set settings only once
 
 
-    GLOBAL_ASSETPICKER_OPTIONS = undefined;
+    setAttributes({
+      setGlobalSettings: false
+    });
   }
   /**
    * This function is called on pick assets button click
@@ -300,15 +297,15 @@ function Edit(_ref) {
       redirect: 'follow',
       credentials: "include"
     };
-    fetch(assetAPIUrl, requestOptions).then(handleFetchErrors) //.then(response => response.json()) // uncomment for debugging
-    .then(function (result) {
-      //console.log(result); // uncomment for debugging
+    fetch(assetAPIUrl, requestOptions).then(handleFetchErrors).then(response => response.json()).then(function (result) {
+      console.log("result:", result); // uncomment for debugging
+
       let renditionsList = fillAllAssetRenditions(result);
       setAttributes({
         renditionsList: renditionsList
       });
     }).catch(error => {
-      console.log(error);
+      console.log("error:", error);
       setAttributes({
         errorMsg: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.errorMsgs.FetchRendition
       });
@@ -324,6 +321,8 @@ function Edit(_ref) {
 
   function fillAllAssetRenditions(json) {
     let renditionsArr = [];
+    /* Static Renditions */
+
     let staticRenditionsJson = json['static'];
 
     if (staticRenditionsJson) {
@@ -335,12 +334,14 @@ function Edit(_ref) {
             setAttributes({
               selectedRendition: key,
               renditionType: 'static'
-            });
+            }); //console.log("selecting rendition - static: ", key); // uncomment for debugging
           }
         };
         renditionsArr.push(obj);
       });
     }
+    /* Dynamic Renditions */
+
 
     let dynamicRenditionsJson = json['dynamic'];
 
@@ -353,7 +354,7 @@ function Edit(_ref) {
             setAttributes({
               selectedRendition: dynamicRenditionsJson[key],
               renditionType: 'dynamic'
-            });
+            }); //console.log("selecting rendition - dynamic", dynamicRenditionsJson[key]); // uncomment for debugging
           }
         };
         renditionsArr.push(obj);
@@ -755,7 +756,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"},"setGlobalSettings":{"type":"boolean","default":true}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 
