@@ -36,16 +36,21 @@ import './editor.scss';
  */
 import RenderElement from './renderassets';
 import {
-	GLOBAL_ASSETPICKER_OPTIONS,
 	assetpicker_path,
 	allowed_extensions,
 	renditionsListIcon,
 	renditionIcon,
+	dynamicRenditionIcon,
 	replaceIcon,
 	maxAssetWidth,
 	minAssetWidth,
 	errorMsgs
 } from './CONSTANTS';
+
+/**
+ * Get global settings options
+ */
+let GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -69,6 +74,9 @@ export default function Edit({ attributes, setAttributes }) {
 		if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
 			setAttributes({ publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1 })
 		}
+
+		// set settings only once
+		GLOBAL_ASSETPICKER_OPTIONS = undefined;
 	}
 
 	/**
@@ -200,15 +208,10 @@ export default function Edit({ attributes, setAttributes }) {
 	 * Fetches all the static renditions for the AEM Asset
 	 */
 	function fetchRenditionsList(authorInstanceUrl, assetPath) {
-		// let assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
-		// let reqHeaders = new Headers();
-		// let requestOptions = {
-		// 	method: 'GET',
-		// 	headers: reqHeaders,
-		// 	redirect: 'follow',
-		// 	credentials: "include"
-		// };
-
+		// AEM Assets API for renditions - only static renditions
+		//const assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+		
+		// Custom API for renditions
 		const assetRenditionsAPIPath = "/bin/AssetRendition";
 		const queryParam = "?assetPath="
 		let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
@@ -222,11 +225,11 @@ export default function Edit({ attributes, setAttributes }) {
 
 		fetch(assetAPIUrl, requestOptions)
 			.then(handleFetchErrors)
-			.then(response => response.json())
+			//.then(response => response.json()) // uncomment for debugging
 			.then(function (result) {
-				console.log(result); // uncomment for debugging
-				let renditionsList = fillAssetRenditions(result);
-				setAttributes({ renditionsList: renditionsList })
+				//console.log(result); // uncomment for debugging
+				let renditionsList = fillAllAssetRenditions(result);
+				setAttributes({ renditionsList: renditionsList });
 			})
 			.catch(error => {
 				console.log(error);
@@ -240,6 +243,45 @@ export default function Edit({ attributes, setAttributes }) {
 		return renditionsAPIPath;
 	}
 
+	// works for custom API serving both static and dynamic renditions
+	function fillAllAssetRenditions(json) {
+		let renditionsArr = [];
+
+		let staticRenditionsJson = json['static'];
+		if (staticRenditionsJson) {
+			Object.keys(staticRenditionsJson).forEach(function (key) {
+				let obj = {
+					title: key,
+					icon: renditionIcon,
+					onClick: function () {
+						setAttributes({ selectedRendition: key,  renditionType: 'static'});
+					}
+				};
+
+				renditionsArr.push(obj);
+			});
+		}
+
+		let dynamicRenditionsJson = json['dynamic'];
+		if (dynamicRenditionsJson) {
+			Object.keys(dynamicRenditionsJson).forEach(function (key) {
+				let obj = {
+					title: key,
+					icon: dynamicRenditionIcon,
+					onClick: function () {
+						setAttributes({ selectedRendition: dynamicRenditionsJson[key],  renditionType: 'dynamic'});
+					}
+				};
+
+				renditionsArr.push(obj);
+			});
+		}
+
+		//console.log("renditionsArr: ", renditionsArr); // uncomment for debugging
+		return renditionsArr;
+	}
+
+	// Only for static renditions API
 	function fillAssetRenditions(json) {
 		let renditionsArr = [];
 		json['entities'].forEach(function (elem) {

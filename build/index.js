@@ -10,10 +10,10 @@
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "GLOBAL_ASSETPICKER_OPTIONS": function() { return /* binding */ GLOBAL_ASSETPICKER_OPTIONS; },
 /* harmony export */   "allowed_extensions": function() { return /* binding */ allowed_extensions; },
 /* harmony export */   "asset_rendition_path": function() { return /* binding */ asset_rendition_path; },
 /* harmony export */   "assetpicker_path": function() { return /* binding */ assetpicker_path; },
+/* harmony export */   "dynamicRenditionIcon": function() { return /* binding */ dynamicRenditionIcon; },
 /* harmony export */   "errorMsgs": function() { return /* binding */ errorMsgs; },
 /* harmony export */   "maxAssetWidth": function() { return /* binding */ maxAssetWidth; },
 /* harmony export */   "minAssetWidth": function() { return /* binding */ minAssetWidth; },
@@ -22,7 +22,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "replaceIcon": function() { return /* binding */ replaceIcon; }
 /* harmony export */ });
 /* Constants */
-const GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
 const assetpicker_path = "/aem/assetpicker.html";
 const asset_rendition_path = "/_jcr_content/renditions/";
 const allowed_extensions = {
@@ -31,6 +30,7 @@ const allowed_extensions = {
 };
 const renditionsListIcon = "images-alt2";
 const renditionIcon = "menu";
+const dynamicRenditionIcon = "image-filter";
 const replaceIcon = "controls-repeat"; // "image-rotate"
 
 const maxAssetWidth = 1450;
@@ -104,6 +104,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /**
+ * Get global settings options
+ */
+
+let GLOBAL_ASSETPICKER_OPTIONS = global_assetpicker_options;
+/**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
@@ -123,18 +128,21 @@ function Edit(_ref) {
    * Set attributes to global settings
    */
 
-  if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS) {
-    if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
+  if (GLOBAL_ASSETPICKER_OPTIONS) {
+    if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
       setAttributes({
-        authorInstanceUrl: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
+        authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
       });
     }
 
-    if (_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
+    if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
       setAttributes({
-        publishInstanceUrl: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
+        publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
       });
-    }
+    } // set settings only once
+
+
+    GLOBAL_ASSETPICKER_OPTIONS = undefined;
   }
   /**
    * This function is called on pick assets button click
@@ -279,14 +287,9 @@ function Edit(_ref) {
 
 
   function fetchRenditionsList(authorInstanceUrl, assetPath) {
-    // let assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
-    // let reqHeaders = new Headers();
-    // let requestOptions = {
-    // 	method: 'GET',
-    // 	headers: reqHeaders,
-    // 	redirect: 'follow',
-    // 	credentials: "include"
-    // };
+    // AEM Assets API for renditions - only static renditions
+    //const assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+    // Custom API for renditions
     const assetRenditionsAPIPath = "/bin/AssetRendition";
     const queryParam = "?assetPath=";
     let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
@@ -297,10 +300,10 @@ function Edit(_ref) {
       redirect: 'follow',
       credentials: "include"
     };
-    fetch(assetAPIUrl, requestOptions).then(handleFetchErrors).then(response => response.json()).then(function (result) {
-      console.log(result); // uncomment for debugging
-
-      let renditionsList = fillAssetRenditions(result);
+    fetch(assetAPIUrl, requestOptions).then(handleFetchErrors) //.then(response => response.json()) // uncomment for debugging
+    .then(function (result) {
+      //console.log(result); // uncomment for debugging
+      let renditionsList = fillAllAssetRenditions(result);
       setAttributes({
         renditionsList: renditionsList
       });
@@ -316,7 +319,51 @@ function Edit(_ref) {
     let assetAPIUrl = assetUrl.replace("/content/dam", "/api/assets");
     let renditionsAPIPath = assetAPIUrl + "/renditions.json";
     return renditionsAPIPath;
-  }
+  } // works for custom API serving both static and dynamic renditions
+
+
+  function fillAllAssetRenditions(json) {
+    let renditionsArr = [];
+    let staticRenditionsJson = json['static'];
+
+    if (staticRenditionsJson) {
+      Object.keys(staticRenditionsJson).forEach(function (key) {
+        let obj = {
+          title: key,
+          icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.renditionIcon,
+          onClick: function () {
+            setAttributes({
+              selectedRendition: key,
+              renditionType: 'static'
+            });
+          }
+        };
+        renditionsArr.push(obj);
+      });
+    }
+
+    let dynamicRenditionsJson = json['dynamic'];
+
+    if (dynamicRenditionsJson) {
+      Object.keys(dynamicRenditionsJson).forEach(function (key) {
+        let obj = {
+          title: key,
+          icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.dynamicRenditionIcon,
+          onClick: function () {
+            setAttributes({
+              selectedRendition: dynamicRenditionsJson[key],
+              renditionType: 'dynamic'
+            });
+          }
+        };
+        renditionsArr.push(obj);
+      });
+    } //console.log("renditionsArr: ", renditionsArr); // uncomment for debugging
+
+
+    return renditionsArr;
+  } // Only for static renditions API
+
 
   function fillAssetRenditions(json) {
     let renditionsArr = [];
