@@ -44,7 +44,7 @@
 		},
 		"assetWidth": {
 			"type": "integer",
-			"default": 800
+			"default": 600
 		},
 		"isAssetPublished": {
 			"type": "boolean",
