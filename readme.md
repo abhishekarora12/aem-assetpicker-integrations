@@ -54,12 +54,15 @@ Embed an image or video asset from AEM Digital Assets Manager in your wordpress 
 ### Release - 2.1.0
 #### Added
 Asset Metadata
+
 Add option to switch to static renditions only
+
 Bug Fixes
 
 ### Release - 2.0.0
 #### Added
 Dynamic Media Renditions
+
 Bug Fixes
 
 ### Release - 1.2.0
@@ -69,9 +72,11 @@ Asset resizing
 ### Release - 1.1.0
 #### Added
 Global settings page
+
 Bug Fixes
 
 ### Release - 1.0.0
 #### Added
 Embed image and video assets
+
 Select asset renditions
