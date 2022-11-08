@@ -467,7 +467,7 @@ export default function Edit({ attributes, setAttributes }) {
 					:
 					(
 						<div>
-							<div className="fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
+							<div className="assetpicker_container fullWidth boxMargin" style={{ width: attributes.assetWidth + 'px', height: 'auto' }}>
 								{RenderElement(
 									attributes.authorInstanceUrl,
 									attributes.assetType,
@@ -478,6 +478,7 @@ export default function Edit({ attributes, setAttributes }) {
 									attributes.renditionType,
 									attributes.selectedRendition
 								)}
+								{(attributes.assetTitle) && <div class="asset_caption">{attributes.assetTitle}</div>}
 							</div>
 							<p class="error_message">{attributes.errorMsg}</p>
 							<p class="error_message published_error_message">{!attributes.isAssetPublished ? errorMsgs["AssetNotPublished"] : ""}</p>
