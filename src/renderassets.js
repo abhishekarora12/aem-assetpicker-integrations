@@ -31,7 +31,7 @@ function generateAssetRenditionURL(url, renditionType, rendition) {
  * @param {*} title 
  * @returns 
  */
-export default function RenderElement(instancePath, assetType, assetPath, assetTitle, renditionType, selectedRendition) {
+export default function RenderElement(instancePath, assetType, assetPath, assetWidth,  assetTitle, assetDescription, renditionType, selectedRendition) {
     if (assetType !== "image" && assetType !== "video")
         return <p>Please select a supported asset</p>
 
@@ -47,6 +47,6 @@ export default function RenderElement(instancePath, assetType, assetPath, assetT
                 </video>
             )
         else
-            return <img src={url} alt={assetTitle} />
+            return <img src={url} alt={ (assetDescription) ? assetDescription : assetTitle} style={{ width: assetWidth + 'px'}} />
     }
 }

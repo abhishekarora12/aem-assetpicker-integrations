@@ -29,7 +29,9 @@ export default function save({ attributes, setAttributes }) {
 						attributes.authorInstanceUrl,
 						attributes.assetType,
 						attributes.assetPath,
+						attributes.assetWidth,
 						attributes.assetTitle,
+						attributes.assetDescription,
 						attributes.renditionType,
 						attributes.selectedRendition
 					)}

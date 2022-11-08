@@ -34,7 +34,6 @@ import './editor.scss';
 /**
  * Internal dependencies
  */
-import RenderElement from './renderassets';
 import {
 	assetpicker_path,
 	aemContentDAMPath,
@@ -51,6 +50,9 @@ import {
 	minAssetWidth,
 	errorMsgs
 } from './CONSTANTS';
+import RenderElement from './renderassets';
+import fetchAssetMetadata from './accessibility';
+import { handleFetchErrors } from './helper'
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -69,7 +71,7 @@ export default function Edit({ attributes, setAttributes }) {
 	 */
 	function sanitizeAEMInstanceUrl(url) {
 		url = url.trim();
-		if (url.charAt(url.length-1) == '/')
+		if (url.charAt(url.length - 1) == '/')
 			return url.slice(0, -1);
 		return url;
 	}
@@ -201,12 +203,6 @@ export default function Edit({ attributes, setAttributes }) {
 	/* Check if object is empty */
 	function isEmpty(obj) {
 		return Object.keys(obj).length === 0;
-	}
-
-	/* Handle Fetch Errors */
-	function handleFetchErrors(response) {
-		if (!response.ok) throw Error(response.statusText);
-		return response;
 	}
 
 	/**
@@ -351,15 +347,19 @@ export default function Edit({ attributes, setAttributes }) {
 	 */
 	useEffect(() => {
 		if (attributes.assetPath && attributes.authorInstanceUrl) {
-			setAttributes({ isAssetPublished: true, errorMsg: "" });
+			const assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
+
+			// Clear attributes
+			setAttributes({ isAssetPublished: true, errorMsg: "", renditionsList: [] });
 
 			/* Fetch Renditions */
-			setAttributes({ renditionsList: [] }); // clear renditions list
 			fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
 
 			/* Check if asset is published */
-			let assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
 			checkAssetNotExistOnPublish(assetPublishUrl);
+
+			/* Fetch Asset Metadata */
+			fetchAssetMetadata(attributes.authorInstanceUrl, attributes.assetPath, setAttributes);
 		}
 	}, [attributes.assetPath, attributes.authorInstanceUrl, attributes.useAEMAssetAPIForRenditions]) // <-- here put the parameter to listen
 
@@ -379,8 +379,14 @@ export default function Edit({ attributes, setAttributes }) {
 						<TextControl
 							label="Title"
 							value={attributes.assetTitle}
+							help='asset title (fallback alt text)'
+							onChange={(value) => setAttributes({ assetTitle: value })}
+						/>
+						<TextControl
+							label="Description"
+							value={attributes.assetDescription}
 							help='image alt text'
-							onChange={(title) => setAttributes({ assetTitle: title })}
+							onChange={(value) => setAttributes({ assetDescription: value })}
 						/>
 					</PanelBody>
 					<PanelBody title="AEM Properties" initialOpen={true}>
@@ -466,7 +472,9 @@ export default function Edit({ attributes, setAttributes }) {
 									attributes.authorInstanceUrl,
 									attributes.assetType,
 									attributes.assetPath,
+									attributes.assetWidth,
 									attributes.assetTitle,
+									attributes.assetDescription,
 									attributes.renditionType,
 									attributes.selectedRendition
 								)}
