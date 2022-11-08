@@ -42,7 +42,7 @@ export default function RenderElement(instancePath, assetType, assetPath, assetW
     if (url) {
         if (assetType === "video")
             return (
-                <video controls="">
+                <video controls="" style={{ width: assetWidth + 'px'}} >
                     <source src={url} />
                 </video>
             )
