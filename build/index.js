@@ -437,7 +437,7 @@ function Edit(_ref) {
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, {
     key: "setting"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-    title: "Settings",
+    title: "Asset Properties",
     initialOpen: true
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
     label: "Size",
@@ -448,6 +448,16 @@ function Edit(_ref) {
     min: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.minAssetWidth,
     max: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.maxAssetWidth
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
+    label: "Title",
+    value: attributes.assetTitle,
+    help: "image alt text",
+    onChange: title => setAttributes({
+      assetTitle: title
+    })
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+    title: "AEM Properties",
+    initialOpen: true
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "AEM Author URL",
     value: attributes.authorInstanceUrl,
     help: "your aem author instance url",
@@ -461,6 +471,18 @@ function Edit(_ref) {
     onChange: url => setAttributes({
       publishInstanceUrl: url
     })
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+    title: "General Settings",
+    initialOpen: true
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: "Use AEM Assets API",
+    help: "use aem assets api for fetching renditions",
+    checked: attributes.useAEMAssetAPIForRenditions,
+    onChange: () => {
+      setAttributes({
+        useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions
+      });
+    }
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TextControl, {
     label: "Asset Type",
     value: attributes.assetType,
@@ -489,15 +511,6 @@ function Edit(_ref) {
     onChange: rendition => setAttributes({
       selectedRendition: rendition
     })
-  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
-    label: "Use AEM Assets API",
-    help: "use aem assets api for fetching renditions",
-    checked: attributes.useAEMAssetAPIForRenditions,
-    onChange: () => {
-      setAttributes({
-        useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions
-      });
-    }
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.BlockControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarGroup, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarButton, {
     label: "Replace",
     icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.replaceIcon,
@@ -788,7 +801,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"},"setGlobalSettingsOnce":{"type":"boolean","default":true},"useAEMAssetAPIForRenditions":{"type":"boolean","default":false}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"assetDescription":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"},"setGlobalSettingsOnce":{"type":"boolean","default":true},"useAEMAssetAPIForRenditions":{"type":"boolean","default":false}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

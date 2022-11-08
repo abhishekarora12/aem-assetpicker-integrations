@@ -331,7 +331,7 @@ export default function Edit({ attributes, setAttributes }) {
 			setAttributes({ isAssetPublished: true, errorMsg: "" });
 
 			/* Fetch Renditions */
-			setAttributes({renditionsList: []}); // clear renditions list
+			setAttributes({ renditionsList: [] }); // clear renditions list
 			fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
 
 			/* Check if asset is published */
@@ -345,7 +345,7 @@ export default function Edit({ attributes, setAttributes }) {
 			<div className="aemassetpicker-block">
 				{/*console.log("rendering block")*/}
 				<InspectorControls key="setting">
-					<PanelBody title="Settings" initialOpen={true}>
+					<PanelBody title="Asset Properties" initialOpen={true}>
 						<RangeControl
 							label="Size"
 							value={attributes.assetWidth}
@@ -353,6 +353,14 @@ export default function Edit({ attributes, setAttributes }) {
 							min={minAssetWidth}
 							max={maxAssetWidth}
 						/>
+						<TextControl
+							label="Title"
+							value={attributes.assetTitle}
+							help='image alt text'
+							onChange={(title) => setAttributes({ assetTitle: title })}
+						/>
+					</PanelBody>
+					<PanelBody title="AEM Properties" initialOpen={true}>
 						<TextControl
 							label="AEM Author URL"
 							value={attributes.authorInstanceUrl}
@@ -364,6 +372,14 @@ export default function Edit({ attributes, setAttributes }) {
 							value={attributes.publishInstanceUrl}
 							help='your aem publish instance url'
 							onChange={(url) => setAttributes({ publishInstanceUrl: url })}
+						/>
+					</PanelBody>
+					<PanelBody title="General Settings" initialOpen={true}>
+						<ToggleControl
+							label='Use AEM Assets API'
+							help='use aem assets api for fetching renditions'
+							checked={attributes.useAEMAssetAPIForRenditions}
+							onChange={() => { setAttributes({ useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions }) }}
 						/>
 						<TextControl
 							label="Asset Type"
@@ -388,12 +404,6 @@ export default function Edit({ attributes, setAttributes }) {
 							value={attributes.selectedRendition}
 							help='selected asset rendition'
 							onChange={(rendition) => setAttributes({ selectedRendition: rendition })}
-						/>
-						<ToggleControl
-							label='Use AEM Assets API'
-							help='use aem assets api for fetching renditions'
-							checked={attributes.useAEMAssetAPIForRenditions}
-							onChange={() => {setAttributes({ useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions })}}
 						/>
 					</PanelBody>
 				</InspectorControls>

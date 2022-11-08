@@ -25,6 +25,9 @@
 		"assetTitle": {
 			"type": "string"
 		},
+		"assetDescription": {
+			"type": "string"
+		},
 		"renditionsList": {
 			"type": "array"
 		},
