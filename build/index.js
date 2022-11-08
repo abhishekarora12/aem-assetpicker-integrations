@@ -420,13 +420,17 @@ function Edit(_ref) {
       });
       /* Fetch Renditions */
 
+      setAttributes({
+        renditionsList: []
+      }); // clear renditions list
+
       fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
       /* Check if asset is published */
 
       let assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
       checkAssetNotExistOnPublish(assetPublishUrl);
     }
-  }, [attributes.assetPath, attributes.authorInstanceUrl]); // <-- here put the parameter to listen
+  }, [attributes.assetPath, attributes.authorInstanceUrl, attributes.useAEMAssetAPIForRenditions]); // <-- here put the parameter to listen
 
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "aemassetpicker-block"

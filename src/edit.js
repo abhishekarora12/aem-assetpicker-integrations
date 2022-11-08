@@ -331,13 +331,14 @@ export default function Edit({ attributes, setAttributes }) {
 			setAttributes({ isAssetPublished: true, errorMsg: "" });
 
 			/* Fetch Renditions */
+			setAttributes({renditionsList: []}); // clear renditions list
 			fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
 
 			/* Check if asset is published */
 			let assetPublishUrl = attributes.publishInstanceUrl + attributes.assetPath;
 			checkAssetNotExistOnPublish(assetPublishUrl);
 		}
-	}, [attributes.assetPath, attributes.authorInstanceUrl]) // <-- here put the parameter to listen
+	}, [attributes.assetPath, attributes.authorInstanceUrl, attributes.useAEMAssetAPIForRenditions]) // <-- here put the parameter to listen
 
 	return (
 		<div {...useBlockProps()}>
