@@ -1,6 +1,14 @@
 /* Constants */
 export const assetpicker_path = "/aem/assetpicker.html";
 export const asset_rendition_path = "/_jcr_content/renditions/";
+
+export const aemContentDAMPath = "/content/dam";
+export const aemAssetsAPIPath = "/api/assets";
+export const aemAssetsAPIRenditionsPath = "/renditions.json";
+
+export const dynamicRenditionsAPIPath = "/bin/AssetRendition";
+export const dynamicRenditionsAPIQueryParam = "assetPath"
+
 export const allowed_extensions = {
     image: ["jpg", "jpeg", "png", "tiff", "svg"],
     video: ["mp4", "mkv"],

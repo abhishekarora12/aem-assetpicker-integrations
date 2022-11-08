@@ -49,9 +49,13 @@
 		"errorMsg": {
 			"type": "string"
 		},
-		"setGlobalSettings": {
+		"setGlobalSettingsOnce": {
 			"type": "boolean",
 			"default": true
+		},
+		"useAEMAssetAPIForRenditions": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"example": {

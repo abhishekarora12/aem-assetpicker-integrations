@@ -10,10 +10,15 @@
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "aemAssetsAPIPath": function() { return /* binding */ aemAssetsAPIPath; },
+/* harmony export */   "aemAssetsAPIRenditionsPath": function() { return /* binding */ aemAssetsAPIRenditionsPath; },
+/* harmony export */   "aemContentDAMPath": function() { return /* binding */ aemContentDAMPath; },
 /* harmony export */   "allowed_extensions": function() { return /* binding */ allowed_extensions; },
 /* harmony export */   "asset_rendition_path": function() { return /* binding */ asset_rendition_path; },
 /* harmony export */   "assetpicker_path": function() { return /* binding */ assetpicker_path; },
 /* harmony export */   "dynamicRenditionIcon": function() { return /* binding */ dynamicRenditionIcon; },
+/* harmony export */   "dynamicRenditionsAPIPath": function() { return /* binding */ dynamicRenditionsAPIPath; },
+/* harmony export */   "dynamicRenditionsAPIQueryParam": function() { return /* binding */ dynamicRenditionsAPIQueryParam; },
 /* harmony export */   "errorMsgs": function() { return /* binding */ errorMsgs; },
 /* harmony export */   "maxAssetWidth": function() { return /* binding */ maxAssetWidth; },
 /* harmony export */   "minAssetWidth": function() { return /* binding */ minAssetWidth; },
@@ -24,6 +29,11 @@ __webpack_require__.r(__webpack_exports__);
 /* Constants */
 const assetpicker_path = "/aem/assetpicker.html";
 const asset_rendition_path = "/_jcr_content/renditions/";
+const aemContentDAMPath = "/content/dam";
+const aemAssetsAPIPath = "/api/assets";
+const aemAssetsAPIRenditionsPath = "/renditions.json";
+const dynamicRenditionsAPIPath = "/bin/AssetRendition";
+const dynamicRenditionsAPIQueryParam = "assetPath";
 const allowed_extensions = {
   image: ["jpg", "jpeg", "png", "tiff", "svg"],
   video: ["mp4", "mkv"]
@@ -120,25 +130,23 @@ function Edit(_ref) {
   const assetpicker_url = attributes.authorInstanceUrl + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.assetpicker_path;
   let popup;
   /**
-   * Get global settings options
+   * Set global settings options
    */
 
-  if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettings) {
-    if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
-      setAttributes({
-        authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
-      });
-    }
-
-    if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
-      setAttributes({
-        publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
-      });
-    } // set settings only once
-
+  if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettingsOnce) {
+    // console.log("GLOBAL_ASSETPICKER_OPTIONS:", GLOBAL_ASSETPICKER_OPTIONS); // uncomment for debugging
+    if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) setAttributes({
+      authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0
+    });
+    if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) setAttributes({
+      publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1
+    });
+    if (GLOBAL_ASSETPICKER_OPTIONS.use_aem_assets_api_2) setAttributes({
+      useAEMAssetAPIForRenditions: true
+    }); // set settings only once
 
     setAttributes({
-      setGlobalSettings: false
+      setGlobalSettingsOnce: false
     });
   }
   /**
@@ -254,7 +262,6 @@ function Edit(_ref) {
 
 
   function handleFetchErrors(response) {
-    console.log(response);
     if (!response.ok) throw Error(response.statusText);
     return response;
   }
@@ -284,12 +291,17 @@ function Edit(_ref) {
 
 
   function fetchRenditionsList(authorInstanceUrl, assetPath) {
-    // AEM Assets API for renditions - only static renditions
-    //const assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
-    // Custom API for renditions
-    const assetRenditionsAPIPath = "/bin/AssetRendition";
-    const queryParam = "?assetPath=";
-    let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
+    let assetAPIUrl;
+
+    if (attributes.useAEMAssetAPIForRenditions) {
+      // AEM Assets API for renditions - only static renditions
+      const assetUrl = authorInstanceUrl + assetPath;
+      assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+    } else {
+      // Custom API for renditions
+      assetAPIUrl = authorInstanceUrl + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.dynamicRenditionsAPIPath + "?" + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.dynamicRenditionsAPIQueryParam + "=" + assetPath;
+    }
+
     let reqHeaders = new Headers();
     let requestOptions = {
       method: 'GET',
@@ -298,9 +310,15 @@ function Edit(_ref) {
       credentials: "include"
     };
     fetch(assetAPIUrl, requestOptions).then(handleFetchErrors).then(response => response.json()).then(function (result) {
-      console.log("result:", result); // uncomment for debugging
+      //console.log("result:", result); // uncomment for debugging
+      let renditionsList;
 
-      let renditionsList = fillAllAssetRenditions(result);
+      if (attributes.useAEMAssetAPIForRenditions) {
+        renditionsList = fillStaticAssetRenditions(result);
+      } else {
+        renditionsList = fillDynamicAssetRenditions(result);
+      }
+
       setAttributes({
         renditionsList: renditionsList
       });
@@ -313,13 +331,13 @@ function Edit(_ref) {
   }
 
   function getAEMAssetAPIRenditionsPath(assetUrl) {
-    let assetAPIUrl = assetUrl.replace("/content/dam", "/api/assets");
-    let renditionsAPIPath = assetAPIUrl + "/renditions.json";
+    let assetAPIUrl = assetUrl.replace(_CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.aemContentDAMPath, _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.aemAssetsAPIPath);
+    let renditionsAPIPath = assetAPIUrl + _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.aemAssetsAPIRenditionsPath;
     return renditionsAPIPath;
   } // works for custom API serving both static and dynamic renditions
 
 
-  function fillAllAssetRenditions(json) {
+  function fillDynamicAssetRenditions(json) {
     let renditionsArr = [];
     /* Static Renditions */
 
@@ -366,7 +384,7 @@ function Edit(_ref) {
   } // Only for static renditions API
 
 
-  function fillAssetRenditions(json) {
+  function fillStaticAssetRenditions(json) {
     let renditionsArr = [];
     json['entities'].forEach(function (elem) {
       let obj = {
@@ -397,7 +415,8 @@ function Edit(_ref) {
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     if (attributes.assetPath && attributes.authorInstanceUrl) {
       setAttributes({
-        isAssetPublished: true
+        isAssetPublished: true,
+        errorMsg: ""
       });
       /* Fetch Renditions */
 
@@ -466,6 +485,15 @@ function Edit(_ref) {
     onChange: rendition => setAttributes({
       selectedRendition: rendition
     })
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    label: "Use AEM Assets API",
+    help: "use aem assets api for fetching renditions",
+    checked: attributes.useAEMAssetAPIForRenditions,
+    onChange: () => {
+      setAttributes({
+        useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions
+      });
+    }
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.BlockControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarGroup, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToolbarButton, {
     label: "Replace",
     icon: _CONSTANTS__WEBPACK_IMPORTED_MODULE_6__.replaceIcon,
@@ -756,7 +784,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ (function(module) {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"},"setGlobalSettings":{"type":"boolean","default":true}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/aemassetpicker","version":"2.0.0","title":"AEM Assetpicker","category":"media","icon":"format-image","description":"Embed an image or video asset from AEM Digital Assets Manager","attributes":{"authorInstanceUrl":{"type":"string","default":"http://localhost:4502"},"publishInstanceUrl":{"type":"string","default":"http://localhost:4502"},"assetType":{"type":"string"},"assetPath":{"type":"string"},"assetTitle":{"type":"string"},"renditionsList":{"type":"array"},"renditionType":{"type":"string","enum":["static","dynamic"],"default":"static"},"selectedRendition":{"type":"string"},"assetWidth":{"type":"integer"},"isAssetPublished":{"type":"boolean","default":true},"errorMsg":{"type":"string"},"setGlobalSettingsOnce":{"type":"boolean","default":true},"useAEMAssetAPIForRenditions":{"type":"boolean","default":false}},"example":{"attributes":{"assetType":"image","assetPath":"/content/dam/we-retail/en/activities/hiking/hiking_4.jpg","assetTitle":"Preview Image","selectedRendition":"cq5dam.thumbnail.319.319.png"}},"textdomain":"aemassetpicker","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

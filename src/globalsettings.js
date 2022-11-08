@@ -1,0 +1,1 @@
+/* Don't delete this file, It is used to pass variables from php */

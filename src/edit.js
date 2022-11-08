@@ -21,7 +21,7 @@ import { useBlockProps, BlockControls, InspectorControls } from '@wordpress/bloc
 /**
  * Wordpress components used in the block
  */
-import { Placeholder, TextControl, ToolbarGroup, ToolbarButton, ToolbarDropdownMenu, PanelBody, PanelRow, RangeControl } from '@wordpress/components';
+import { Placeholder, TextControl, ToolbarGroup, ToolbarButton, ToolbarDropdownMenu, PanelBody, PanelRow, RangeControl, ToggleControl } from '@wordpress/components';
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -37,6 +37,11 @@ import './editor.scss';
 import RenderElement from './renderassets';
 import {
 	assetpicker_path,
+	aemContentDAMPath,
+	aemAssetsAPIPath,
+	aemAssetsAPIRenditionsPath,
+	dynamicRenditionsAPIPath,
+	dynamicRenditionsAPIQueryParam,
 	allowed_extensions,
 	renditionsListIcon,
 	renditionIcon,
@@ -60,18 +65,21 @@ export default function Edit({ attributes, setAttributes }) {
 	let popup;
 
 	/**
-	 * Get global settings options
+	 * Set global settings options
 	 */
-	if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettings) {
-		if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0) {
+	if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettingsOnce) {
+		// console.log("GLOBAL_ASSETPICKER_OPTIONS:", GLOBAL_ASSETPICKER_OPTIONS); // uncomment for debugging
+		if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0)
 			setAttributes({ authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0 })
-		}
-		if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1) {
+
+		if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1)
 			setAttributes({ publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1 })
-		}
+
+		if (GLOBAL_ASSETPICKER_OPTIONS.use_aem_assets_api_2)
+			setAttributes({ useAEMAssetAPIForRenditions: true });
 
 		// set settings only once
-		setAttributes({ setGlobalSettings: false });
+		setAttributes({ setGlobalSettingsOnce: false });
 	}
 
 	/**
@@ -174,7 +182,6 @@ export default function Edit({ attributes, setAttributes }) {
 
 	/* Handle Fetch Errors */
 	function handleFetchErrors(response) {
-		console.log(response);
 		if (!response.ok) throw Error(response.statusText);
 		return response;
 	}
@@ -203,13 +210,17 @@ export default function Edit({ attributes, setAttributes }) {
 	 * Fetches all the static renditions for the AEM Asset
 	 */
 	function fetchRenditionsList(authorInstanceUrl, assetPath) {
-		// AEM Assets API for renditions - only static renditions
-		//const assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+		let assetAPIUrl;
+		if (attributes.useAEMAssetAPIForRenditions) {
+			// AEM Assets API for renditions - only static renditions
+			const assetUrl = authorInstanceUrl + assetPath;
+			assetAPIUrl = getAEMAssetAPIRenditionsPath(assetUrl);
+		}
+		else {
+			// Custom API for renditions
+			assetAPIUrl = authorInstanceUrl + dynamicRenditionsAPIPath + "?" + dynamicRenditionsAPIQueryParam + "=" + assetPath;
+		}
 
-		// Custom API for renditions
-		const assetRenditionsAPIPath = "/bin/AssetRendition";
-		const queryParam = "?assetPath="
-		let assetAPIUrl = authorInstanceUrl + assetRenditionsAPIPath + queryParam + assetPath;
 		let reqHeaders = new Headers();
 		let requestOptions = {
 			method: 'GET',
@@ -222,8 +233,15 @@ export default function Edit({ attributes, setAttributes }) {
 			.then(handleFetchErrors)
 			.then(response => response.json())
 			.then(function (result) {
-				console.log("result:", result); // uncomment for debugging
-				let renditionsList = fillAllAssetRenditions(result);
+				//console.log("result:", result); // uncomment for debugging
+				let renditionsList;
+				if (attributes.useAEMAssetAPIForRenditions) {
+					renditionsList = fillStaticAssetRenditions(result);
+				}
+				else {
+					renditionsList = fillDynamicAssetRenditions(result);
+				}
+
 				setAttributes({ renditionsList: renditionsList });
 			})
 			.catch(error => {
@@ -233,13 +251,13 @@ export default function Edit({ attributes, setAttributes }) {
 	}
 
 	function getAEMAssetAPIRenditionsPath(assetUrl) {
-		let assetAPIUrl = assetUrl.replace("/content/dam", "/api/assets");
-		let renditionsAPIPath = assetAPIUrl + "/renditions.json";
+		let assetAPIUrl = assetUrl.replace(aemContentDAMPath, aemAssetsAPIPath);
+		let renditionsAPIPath = assetAPIUrl + aemAssetsAPIRenditionsPath;
 		return renditionsAPIPath;
 	}
 
 	// works for custom API serving both static and dynamic renditions
-	function fillAllAssetRenditions(json) {
+	function fillDynamicAssetRenditions(json) {
 		let renditionsArr = [];
 
 		/* Static Renditions */
@@ -281,7 +299,7 @@ export default function Edit({ attributes, setAttributes }) {
 	}
 
 	// Only for static renditions API
-	function fillAssetRenditions(json) {
+	function fillStaticAssetRenditions(json) {
 		let renditionsArr = [];
 		json['entities'].forEach(function (elem) {
 			let obj = {
@@ -310,7 +328,7 @@ export default function Edit({ attributes, setAttributes }) {
 	 */
 	useEffect(() => {
 		if (attributes.assetPath && attributes.authorInstanceUrl) {
-			setAttributes({ isAssetPublished: true });
+			setAttributes({ isAssetPublished: true, errorMsg: "" });
 
 			/* Fetch Renditions */
 			fetchRenditionsList(attributes.authorInstanceUrl, attributes.assetPath);
@@ -369,6 +387,12 @@ export default function Edit({ attributes, setAttributes }) {
 							value={attributes.selectedRendition}
 							help='selected asset rendition'
 							onChange={(rendition) => setAttributes({ selectedRendition: rendition })}
+						/>
+						<ToggleControl
+							label='Use AEM Assets API'
+							help='use aem assets api for fetching renditions'
+							checked={attributes.useAEMAssetAPIForRenditions}
+							onChange={() => {setAttributes({ useAEMAssetAPIForRenditions: !attributes.useAEMAssetAPIForRenditions })}}
 						/>
 					</PanelBody>
 				</InspectorControls>

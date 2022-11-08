@@ -42,7 +42,7 @@ class Aemassetpicker {
 
 		<div class="wrap">
 			<h2>AEM Assetpicker Settings</h2>
-			<p>Changing the options here affects all the aemassetpicker blocks</p>
+			<p>Changing the options here affects only the newly created aemassetpicker blocks</p>
 			<?php settings_errors(); ?>
 
 			<form method="post" action="options.php">
@@ -84,6 +84,14 @@ class Aemassetpicker {
 			'aemassetpicker-admin', // page
 			'aemassetpicker_setting_section' // section
 		);
+
+		add_settings_field(
+			'use_aem_assets_api_2', // id
+			'Use AEM Assets API', // title
+			array( $this, 'use_aem_assets_api_2_callback' ), // callback
+			'aemassetpicker-admin', // page
+			'aemassetpicker_setting_section' // section
+		);
 	}
 
 	public function aemassetpicker_sanitize($input) {
@@ -94,6 +102,10 @@ class Aemassetpicker {
 
 		if ( isset( $input['aem_publish_url_1'] ) ) {
 			$sanitary_values['aem_publish_url_1'] = sanitize_text_field( $input['aem_publish_url_1'] );
+		}
+
+		if ( isset( $input['use_aem_assets_api_2'] ) ) {
+			$sanitary_values['use_aem_assets_api_2'] = $input['use_aem_assets_api_2'];
 		}
 
 		return $sanitary_values;
@@ -114,6 +126,13 @@ class Aemassetpicker {
 		printf(
 			'<input class="regular-text" type="text" name="aemassetpicker_option_name[aem_publish_url_1]" id="aem_publish_url_1" value="%s">',
 			isset( $this->aemassetpicker_options['aem_publish_url_1'] ) ? esc_attr( $this->aemassetpicker_options['aem_publish_url_1']) : ''
+		);
+	}
+
+	public function use_aem_assets_api_2_callback() {
+		printf(
+			'<input type="checkbox" name="aemassetpicker_option_name[use_aem_assets_api_2]" id="use_aem_assets_api_2" value="use_aem_assets_api_2" %s> <label for="use_aem_assets_api_2">Use AEM Assets API for renditions (static only)</label>',
+			( isset( $this->aemassetpicker_options['use_aem_assets_api_2'] ) && $this->aemassetpicker_options['use_aem_assets_api_2'] === 'use_aem_assets_api_2' ) ? 'checked' : ''
 		);
 	}
 
