@@ -11,9 +11,14 @@ Embed an image or video asset from AEM Digital Assets Manager in your wordpress 
 
 ## Installation
 
-1. Download the latest aemassetpicker.zip from releases section
+### Wordpress
+1. Download the latest wordpress_plugin.zip from releases section
 2. Install the plugin through the WordPress plugins screen directly
 3. Activate the plugin through the 'Plugins' screen in WordPress
+
+### AEM (Required for renditions)
+3. Download the latest aem_package.zip
+4. Install the package in aem through /crx/packmgr
 
 
 ## Build
