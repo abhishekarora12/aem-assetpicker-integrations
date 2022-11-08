@@ -65,15 +65,38 @@ export default function Edit({ attributes, setAttributes }) {
 	let popup;
 
 	/**
+	 * Validate before set aem instance attributes
+	 */
+	function sanitizeAEMInstanceUrl(url) {
+		url = url.trim();
+		if (url.charAt(url.length-1) == '/')
+			return url.slice(0, -1);
+		return url;
+	}
+
+	function setAEMInstanceAttributes(type, url) {
+		url = sanitizeAEMInstanceUrl(url);
+		if (type === 'author') {
+			setAttributes({ authorInstanceUrl: url })
+		}
+		else if (type === 'publish') {
+			setAttributes({ publishInstanceUrl: url })
+		}
+		else {
+			console.log("Error - instance type not supported");
+		}
+	}
+
+	/**
 	 * Set global settings options
 	 */
 	if (GLOBAL_ASSETPICKER_OPTIONS && attributes.setGlobalSettingsOnce) {
 		// console.log("GLOBAL_ASSETPICKER_OPTIONS:", GLOBAL_ASSETPICKER_OPTIONS); // uncomment for debugging
 		if (GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0)
-			setAttributes({ authorInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0 })
+			setAEMInstanceAttributes('author', GLOBAL_ASSETPICKER_OPTIONS.aem_author_url_0)
 
 		if (GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1)
-			setAttributes({ publishInstanceUrl: GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1 })
+			setAEMInstanceAttributes('publish', GLOBAL_ASSETPICKER_OPTIONS.aem_publish_url_1)
 
 		if (GLOBAL_ASSETPICKER_OPTIONS.use_aem_assets_api_2)
 			setAttributes({ useAEMAssetAPIForRenditions: true });
@@ -365,13 +388,13 @@ export default function Edit({ attributes, setAttributes }) {
 							label="AEM Author URL"
 							value={attributes.authorInstanceUrl}
 							help='your aem author instance url'
-							onChange={(url) => setAttributes({ authorInstanceUrl: url })}
+							onChange={(url) => setAEMInstanceAttributes('author', url)}
 						/>
 						<TextControl
 							label="AEM Publish URL"
 							value={attributes.publishInstanceUrl}
 							help='your aem publish instance url'
-							onChange={(url) => setAttributes({ publishInstanceUrl: url })}
+							onChange={(url) => setAEMInstanceAttributes('publish', url)}
 						/>
 					</PanelBody>
 					<PanelBody title="General Settings" initialOpen={true}>
