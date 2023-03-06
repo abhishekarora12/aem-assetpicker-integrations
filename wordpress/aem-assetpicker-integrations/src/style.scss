@@ -1,0 +1,36 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.aemassetpicker-block .fullWidth {
+    width: 100%;
+}
+
+.aemassetpicker-block .boxMargin {
+    margin-bottom: 20px;
+}
+
+.error_message {
+    font-size: 12px;
+    color: red;
+}
+
+.assetpicker_container {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
+.asset_caption {
+    width: 100%;
+    position: absolute;
+    bottom: 13px;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    padding: 10px;
+    background: rgb(0, 0, 0, 0.4);
+    color: white;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    cq:adobeTargetExportFormat="html"
+    cq:allowedTemplates="[/conf/assetpicker-wordpress-plugin/settings/wcm/templates/(?!page-).*]"
+    cq:conf="/conf/assetpicker-wordpress-plugin"
+    jcr:primaryType="sling:OrderedFolder"
+    jcr:title="Assetpicker Wordpress Plugin Fragments"
+    sling:configRef="/conf/assetpicker-wordpress-plugin">
+    <us/>
+</jcr:root>

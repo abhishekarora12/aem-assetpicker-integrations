@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/assetpicker-wordpress-plugin" mode="merge"/>
+    <filter root="/content/assetpicker-wordpress-plugin" mode="merge"/>
+    <filter root="/content/dam/assetpicker-wordpress-plugin" mode="merge">
+        <exclude pattern="/content/dam/assetpicker-wordpress-plugin(/.*)?"/>
+        <include pattern="/content/dam/assetpicker-wordpress-plugin/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/assetpicker-wordpress-plugin/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/assetpicker-wordpress-plugin" mode="merge"/>
+</workspaceFilter>
